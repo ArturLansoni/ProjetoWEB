@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	template="/templates/modeloSis.xhtml">
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menuPrincipal.xhtml" />
+	</ui:define>
+	<ui:define name="conteudo">
+
+		<h:form id="frmlistagem">
+			<p:dataTable id="tblcomponentes" widgetVar="tabelaComponentes"
+				emptyMessage="Nenhum resultado encontrado!" value="#{MBUsers.itens}"
+				var="user" filteredValue="#{MBUsers.itensFiltrados}"
+				paginator="true" paginatorPosition="bottom" rows="10">
+				<f:facet name="header"> Lista de Usuarios </f:facet>
+				<p:column headerText="Nome" sortBy="#{user.nomeusu}"
+					filterBy="#{user.nomeusu}">
+					<h:outputText value="#{user.nomeusu}" />
+				</p:column>
+				<p:column headerText="E-mail" sortBy="#{user.emailusu}"
+					filterBy="#{user.emailusu}">
+					<h:outputText value="#{user.emailusu}" />
+				</p:column>
+				<p:column headerText="Idade" sortBy="#{user.idadeusu}"
+					filterBy="#{user.idadeusu}">
+					<h:outputText value="#{user.idadeusu}" />
+				</p:column>
+				<p:column headerText="CPF" sortBy="#{user.cpfusu}"
+					filterBy="#{user.cpfusu}">
+					<h:outputText value="#{user.cpfusu}" />
+				</p:column>
+				<p:column headerText="Opções">
+					<p:commandButton icon="ui-icon-trash"
+						oncomplete="PF('dlgexclui').show();"
+						update=":frmuserexclui:pnluserexclui">
+						<f:setPropertyActionListener target="#{MBUsers.users}"
+							value="#{user}"></f:setPropertyActionListener>
+					</p:commandButton>
+					<p:commandButton icon="ui-icon-pencil"
+						oncomplete="PF('dlgedita').show();"
+						update=":frmuseredita:pnluseredita">
+						<f:setPropertyActionListener target="#{MBUsers.users}"
+							value="#{user}"></f:setPropertyActionListener>
+					</p:commandButton>
+				</p:column>
+				<f:facet name="footer">
+					<p:commandButton value="Novo"
+						actionListener="#{MBUsers.preparanovo}"
+						oncomplete="PF('dlgUsuNovo').show();"
+						update=":frmUsuNovo:pnlUsuNovo" />
+				</f:facet>
+			</p:dataTable>
+		</h:form>
+		<p:dialog widgetVar="dlgUsuNovo" closable="true" draggable="true"
+			resizable="false" modal="true" appendTo="@(body)"
+			header="Usuario - Novo">
+			<h:form id="frmUsuNovo">
+				<p:panelGrid columns="2" id="pnlUsuNovo">
+					<p:outputLabel value="Nome: " />
+					<p:inputText size="30" maxlength="50"
+						value="#{MBUsers.users.nomeusu}" required="true"
+						requiredMessage="O campo nome é obrigatorio" />
+						<p:outputLabel value="E-mail: " />
+					<p:inputText  size="30" maxlength="50"
+						value="#{MBUsers.users.emailusu}" required="true"
+						requiredMessage="O campo e-mail é obrigatorio" />
+						<p:outputLabel value="Senha: " />
+					<p:inputText  size="30" maxlength="50"
+						value="#{MBUsers.users.senhausu}" required="true"
+						requiredMessage="O campo senha é obrigatorio" />
+						<p:outputLabel value="Idade: " />
+					<p:inputText size="30" maxlength="3"
+						value="#{MBUsers.users.idadeusu}" required="true"
+						requiredMessage="O campo idade é obrigatorio" />
+						<p:outputLabel value="CPF: " />
+					<p:inputMask mask="999.999.999-99"  size="30" maxlength="11"
+						value="#{MBUsers.users.cpfusu}" required="true"
+						requiredMessage="O campo CPF é obrigatorio" />
+				</p:panelGrid>
+				<h:panelGrid columns="2">
+					<p:commandButton value="Salvar"
+						actionListener="#{MBUsers.novouser}"
+						update=":frmlistagem:tblcomponentes :msgGlobal"
+						oncomplete="PF('dlgUsuNovo').hide(); tabelaComponentes.clearFilters();" />
+					<p:commandButton value="Cancelar" process="@this"
+						onclick="PF('dlgUsuNovo').hide();">
+						<p:resetInput target="pnlUsuNovo" />
+					</p:commandButton>
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+		<p:dialog widgetVar="dlgexclui" closable="false" draggable="false"
+			resizable="false" modal="true" appendTo="@(body)"
+			header="Usuario - Excluir">
+			<h:form id="frmuserexclui">
+				<h:panelGrid id="pnluserexclui" columns="2">
+					<h:outputText value="Nome: " />
+					<h:outputText value="#{MBUsers.users.nomeusu}" />
+					<h:outputText value="CPF: " />
+					<h:outputText value="#{MBUsers.users.cpfusu}" />
+				</h:panelGrid>
+				<h:panelGrid columns="2">
+					<p:commandButton value="Excluir" actionListener="#{MBUsers.apagar}"
+						oncomplete="PF('dlgexclui').hide(); tabelaComponentes.clearFilters();"
+						update=":frmlistagem:tblcomponentes :msgGlobal" />
+					<p:commandButton value="Cancelar"
+						onclick="PF('dlgexclui').hide(); tabelaComponentes.clearFilters();" />
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+		<p:dialog widgetVar="dlgedita" closable="false" draggable="false"
+			resizable="false" modal="true" appendTo="@(body)"
+			header="Usuario - Edita">
+			<h:form id="frmuseredita">
+				<h:panelGrid id="pnluseredita" columns="2">
+					<h:outputLabel value="Nome: " />
+					<h:inputText value="#{MBUsers.users.nomeusu}" maxlength="50"
+						size="20" />
+					<h:outputLabel value="Email: " />
+					<h:inputText value="#{MBUsers.users.emailusu}" maxlength="50"
+						size="20" />
+					<h:outputLabel value="Senha: " />
+					<h:inputText value="#{MBUsers.users.senhausu}" maxlength="50"
+						size="20" />
+					<h:outputLabel value="Idade: " />
+					<h:outputText value="#{MBUsers.users.idadeusu}" />
+					<h:outputLabel value="CPF: " />
+					<h:outputText value="#{MBUsers.users.cpfusu}" />
+				</h:panelGrid>
+				<h:panelGrid>
+					<p:commandButton value="Editar" actionListener="#{MBUsers.editar}"
+						oncomplete="PF('dlgedita').hide(); tabelaComponentes.clearFilters();"
+						update=":frmlistagem:tblcomponentes :msgGlobal" />
+					<p:commandButton value="Cancelar"
+						onclick="PF('dlgedita').hide(); tabelaComponentes.clearFilters();" />
+				</h:panelGrid>
+
+			</h:form>
+		</p:dialog>
+	</ui:define>
+</ui:composition>
